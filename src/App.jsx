@@ -721,10 +721,10 @@ export default function App() {
 
                 <h4 className="font-medium mb-2 text-sm">Cumulative Over Time</h4>
                 <ResponsiveContainer width="100%" height={250}>
-                  <LineChart margin={{ top: 5, right: 20, left: 60, bottom: 40 }}>
+                  <LineChart margin={{ top: 5, right: 20, left: 20, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="year" type="number" domain={[0, params.analysisPeriod]} label={{ value: 'Year', position: 'insideBottom', offset: -5 }} allowDuplicatedCategory={false} />
-                    <YAxis label={{ value: analysisCategory === 'cost' ? 'Cumulative ($M)' : 'Cumulative (t CO₂e)', angle: -90, position: 'insideLeft', offset: 0 }} />
+                    <YAxis width={80} label={{ value: analysisCategory === 'cost' ? 'Cumulative ($M)' : 'Cumulative (t CO₂e)', angle: -90, position: 'insideLeft' }} />
                     <Tooltip formatter={(v) => [v.toFixed(3), analysisCategory === 'cost' ? '$M' : 't CO₂e']} labelFormatter={(v) => `Year ${Math.round(v)}`} />
                     <Legend verticalAlign="top" height={36} />
                     {results.deterministic.map((r) => (
@@ -805,7 +805,6 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} tickFormatter={v => v.toFixed(2)} label={{ value: getUnit(), position: 'insideBottom', offset: -5 }} />
                         <YAxis />
-                        <Tooltip cursor={false} formatter={(v, n) => [v.toFixed(4), 'Density']} labelFormatter={v => `${getUnit()}: ${v.toFixed(3)}`} />
                         <Legend verticalAlign="top" height={36} />
                         {results.probabilistic.map((r) => {
                           const d = r[getProbKey()];
@@ -821,7 +820,6 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} tickFormatter={v => v.toFixed(2)} label={{ value: getUnit(), position: 'insideBottom', offset: -5 }} />
                         <YAxis domain={[0, 1]} tickFormatter={v => `${(v * 100).toFixed(0)}%`} />
-                        <Tooltip cursor={false} formatter={(v) => [(v * 100).toFixed(1) + '%', 'Probability']} labelFormatter={v => `${getUnit()}: ${v.toFixed(3)}`} />
                         <Legend verticalAlign="top" height={36} />
                         {results.probabilistic.map((r) => {
                           const d = r[getProbKey()];
