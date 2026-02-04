@@ -4,7 +4,7 @@ This project is an educational React application for performing Life Cycle Cost 
 
 ## Project Structure
 
-- `src/App.jsx`: Main application logic (migrated from `pavement-lcca-v2.jsx`).
+- `src/App.jsx`: Main application logic.
 - `src/main.jsx`: Entry point.
 - `vite.config.js`: Configuration for Vite build tool.
 - `tailwind.config.js`: Tailwind CSS configuration.
