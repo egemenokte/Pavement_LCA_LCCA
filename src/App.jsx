@@ -116,6 +116,8 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [newTreatmentName, setNewTreatmentName] = useState('');
   const [editingTreatment, setEditingTreatment] = useState(null);
+  const [pdfCursor, setPdfCursor] = useState(null);
+  const [cdfCursor, setCdfCursor] = useState(null);
 
   const area = params.lengthMiles * params.widthFeet * 1760 * 0.33;
   const cpiWarning = params.constructionYear > 2070;
@@ -719,12 +721,12 @@ export default function App() {
                   ))}
                 </div>
 
-                <h4 className="font-medium mb-2 text-sm">Cumulative Over Time</h4>
+                <h4 className="font-medium mb-2 text-sm">Cumulative Over Time ({analysisCategory === 'cost' ? '$M' : 't CO₂e'})</h4>
                 <ResponsiveContainer width="100%" height={250}>
-                  <LineChart margin={{ top: 5, right: 20, left: 20, bottom: 40 }}>
+                  <LineChart margin={{ top: 5, right: 20, left: 10, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="year" type="number" domain={[0, params.analysisPeriod]} label={{ value: 'Year', position: 'insideBottom', offset: -5 }} allowDuplicatedCategory={false} />
-                    <YAxis width={80} label={{ value: analysisCategory === 'cost' ? 'Cumulative ($M)' : 'Cumulative (t CO₂e)', angle: -90, position: 'insideLeft' }} />
+                    <YAxis />
                     <Tooltip formatter={(v) => [v.toFixed(3), analysisCategory === 'cost' ? '$M' : 't CO₂e']} labelFormatter={(v) => `Year ${Math.round(v)}`} />
                     <Legend verticalAlign="top" height={36} />
                     {results.deterministic.map((r) => (
@@ -798,10 +800,11 @@ export default function App() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="relative">
                     <h4 className="text-sm font-medium mb-1 text-center">Probability Density Function</h4>
+                    {pdfCursor && <div className="absolute top-8 right-2 text-xs bg-white/90 px-2 py-1 rounded shadow z-10">{getUnit()}: {pdfCursor.x?.toFixed(3)} | Density: {pdfCursor.y?.toFixed(4)}</div>}
                     <ResponsiveContainer width="100%" height={220}>
-                      <AreaChart margin={{ top: 5, right: 20, left: 10, bottom: 40 }}>
+                      <AreaChart margin={{ top: 5, right: 20, left: 10, bottom: 40 }} onMouseMove={(e) => e && e.activePayload && setPdfCursor({ x: e.activePayload[0]?.payload?.x, y: e.activePayload[0]?.payload?.count })} onMouseLeave={() => setPdfCursor(null)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} tickFormatter={v => v.toFixed(2)} label={{ value: getUnit(), position: 'insideBottom', offset: -5 }} />
                         <YAxis />
@@ -813,10 +816,11 @@ export default function App() {
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                  <div>
+                  <div className="relative">
                     <h4 className="text-sm font-medium mb-1 text-center">Cumulative Distribution Function</h4>
+                    {cdfCursor && <div className="absolute top-8 right-2 text-xs bg-white/90 px-2 py-1 rounded shadow z-10">{getUnit()}: {cdfCursor.x?.toFixed(3)} | Prob: {(cdfCursor.y * 100)?.toFixed(1)}%</div>}
                     <ResponsiveContainer width="100%" height={220}>
-                      <LineChart margin={{ top: 5, right: 20, left: 10, bottom: 40 }}>
+                      <LineChart margin={{ top: 5, right: 20, left: 10, bottom: 40 }} onMouseMove={(e) => e && e.activePayload && setCdfCursor({ x: e.activePayload[0]?.payload?.x, y: e.activePayload[0]?.payload?.y })} onMouseLeave={() => setCdfCursor(null)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} tickFormatter={v => v.toFixed(2)} label={{ value: getUnit(), position: 'insideBottom', offset: -5 }} />
                         <YAxis domain={[0, 1]} tickFormatter={v => `${(v * 100).toFixed(0)}%`} />
@@ -892,6 +896,7 @@ export default function App() {
                 <li>Salvage value / remaining service life not included</li>
                 <li>Simplified IRI progression (linear)</li>
                 <li>Work zone delay assumed = idling time</li>
+                <li><strong>Total Cost interpretation:</strong> While total emissions represent actual cumulative CO₂ released, "total cost" combines agency and user costs which are borne by different entities and may not be directly additive for decision-making</li>
               </ul>
             </div>
           </div>
