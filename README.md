@@ -1,5 +1,7 @@
 # Pavement LCA & LCCA Tool
 
+Application hosted at lifecycle.egemenokte.com
+
 This project is an educational React application for performing Life Cycle Cost Analysis (LCCA) and Life Cycle Assessment (LCA) for pavement management.
 
 ## Project Structure
