@@ -190,6 +190,7 @@ export default function App() {
     const iriData = calcIRIProgression(alt, deterministic);
     const yearly = [];
     let cumCostDisc = 0, cumCostUndisc = 0, cumCO2 = 0;
+    let cumAgencyCostDisc = 0, cumUserCostDisc = 0, cumAgencyCO2 = 0, cumUserCO2 = 0;
 
     for (let y = 1; y <= params.analysisPeriod; y++) {
       const avgIRI = (iriData[y - 1].iri + iriData[y].iri) / 2;
@@ -215,14 +216,24 @@ export default function App() {
         wzCO2 = wzDelayHours * params.wzIdlingCO2 / 1000;
       }
 
-      cumCostDisc += treatCostDisc + wzCostDisc + fuelCostY * disc;
-      cumCostUndisc += treatCostUndisc + wzCostUndisc + fuelCostY;
+      const fuelCostDisc = fuelCostY * disc;
+      const fuelCostUndisc = fuelCostY;
+
+      cumAgencyCostDisc += treatCostDisc;
+      cumUserCostDisc += wzCostDisc + fuelCostDisc;
+      cumAgencyCO2 += treatCO2;
+      cumUserCO2 += wzCO2 + fuelCO2Y;
+
+      cumCostDisc += treatCostDisc + wzCostDisc + fuelCostDisc;
+      cumCostUndisc += treatCostUndisc + wzCostUndisc + fuelCostUndisc;
       cumCO2 += treatCO2 + wzCO2 + fuelCO2Y;
 
       yearly.push({
         year: y, treatCostDisc, treatCostUndisc, treatCO2, wzCostDisc, wzCostUndisc, wzCO2,
-        fuelCostDisc: fuelCostY * disc, fuelCostUndisc: fuelCostY, fuelCO2: fuelCO2Y,
-        cumCostDisc, cumCostUndisc, cumCO2, treatment: act?.treatment || null
+        fuelCostDisc, fuelCostUndisc, fuelCO2: fuelCO2Y,
+        cumAgencyCostDisc, cumUserCostDisc, cumCostDisc,
+        cumAgencyCO2, cumUserCO2, cumCO2,
+        cumCostUndisc, treatment: act?.treatment || null
       });
     }
     return { iriData, yearly };
@@ -342,6 +353,9 @@ export default function App() {
 
   const currentResults = results ? results[analysisMode] : null;
   const getDataKey = () => analysisCategory === 'cost' ? (costType === 'agency' ? 'agencyCost' : costType === 'user' ? 'userCost' : 'totalCost') : (costType === 'agency' ? 'agencyCO2' : costType === 'user' ? 'userCO2' : 'totalCO2');
+  const getCumulativeDataKey = () => analysisCategory === 'cost'
+    ? (costType === 'agency' ? 'cumAgencyCostDisc' : costType === 'user' ? 'cumUserCostDisc' : 'cumCostDisc')
+    : (costType === 'agency' ? 'cumAgencyCO2' : costType === 'user' ? 'cumUserCO2' : 'cumCO2');
   const getUnit = () => analysisCategory === 'cost' ? 'Million $' : 'Tonnes CO₂e';
   const getProbKey = () => analysisCategory === 'cost' ? costType : (costType === 'agency' ? 'agencyCO2' : costType === 'user' ? 'userCO2' : 'totalCO2');
 
@@ -730,7 +744,7 @@ export default function App() {
                     <Tooltip formatter={(v) => [v.toFixed(3), analysisCategory === 'cost' ? '$M' : 't CO₂e']} labelFormatter={(v) => `Year ${Math.round(v)}`} />
                     <Legend verticalAlign="top" height={36} />
                     {results.deterministic.map((r) => (
-                      <Line key={r.name} data={r.yearly} dataKey={analysisCategory === 'cost' ? 'cumCostDisc' : 'cumCO2'} name={r.name} stroke={r.color} strokeWidth={2} dot={false} />
+                      <Line key={r.name} data={r.yearly} dataKey={getCumulativeDataKey()} name={r.name} stroke={r.color} strokeWidth={2} dot={false} />
                     ))}
                   </LineChart>
                 </ResponsiveContainer>
