@@ -260,7 +260,13 @@ export default function App() {
 
         return {
           name: alt.name, color: COLORS[idx % COLORS.length], iriData,
-          yearly: yearly.map(y => ({ ...y, cumCostDisc: y.cumCostDisc / 1e6, cumCO2: y.cumCO2 })),
+          yearly: yearly.map(y => ({
+            ...y,
+            cumAgencyCostDisc: y.cumAgencyCostDisc / 1e6,
+            cumUserCostDisc: y.cumUserCostDisc / 1e6,
+            cumCostDisc: y.cumCostDisc / 1e6,
+            cumCO2: y.cumCO2
+          })),
           agencyCost: treatCostDisc, userCost: wzCostDisc + fuelCostDisc, totalCost: last.cumCostDisc / 1e6,
           agencyCO2: treatCO2, userCO2: wzCO2 + fuelCO2, totalCO2: last.cumCO2,
           treatCostDisc, wzCostDisc, fuelCostDisc, treatCO2, wzCO2, fuelCO2,
